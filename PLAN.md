@@ -5,7 +5,7 @@ Do the tasks in order. Each task is one small pull request. Tick the box in the 
 
 ## Phase 1: Setup
 
-- [ ] **01 — Project setup.** Create the project with Vite + TypeScript, add Phaser, Vitest, ESLint, and Prettier. Add the npm scripts `dev`, `test`, `lint`, `build`. Create the folder layout from `AGENTS.md`. `main.ts` starts Phaser with one empty scene that shows the text "Short Fuse". One sample test that passes. (This is the only task allowed to add npm packages.)
+- [x] **01 — Project setup.** Create the project with Vite + TypeScript, add Phaser, Vitest, ESLint, and Prettier. Add the npm scripts `dev`, `test`, `lint`, `build`. Create the folder layout from `AGENTS.md`. `main.ts` starts Phaser with one empty scene that shows the text "Short Fuse". One sample test that passes. (This is the only task allowed to add npm packages.)
 
 ## Phase 2: Game rules (src/core, with tests)
 
