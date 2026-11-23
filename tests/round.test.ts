@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
-import { createRng } from "../src/core/rng";
-import { startRound } from "../src/core/round";
+import { CHARGE_MAX, CHARGE_MIN } from "../src/core/config";
+import { createRng, randomInt } from "../src/core/rng";
+import { startRound, takePlayerCharge } from "../src/core/round";
 
 describe("startRound", () => {
   it("rolls a code within the code range", () => {
@@ -38,6 +39,56 @@ describe("startRound", () => {
       state.playerCharges[0] + state.playerCharges[1],
     );
     expect(state.aiTotal).toBe(state.aiCharges[0] + state.aiCharges[1]);
+  });
+
+  it("adds a seeded charge to the player total", () => {
+    const state = startRound(createRng(12345));
+    const charge = randomInt(state.rng, CHARGE_MIN, CHARGE_MAX);
+
+    const updatedState = takePlayerCharge(state);
+
+    expect(updatedState.playerCharges).toEqual([
+      ...state.playerCharges,
+      charge.value,
+    ]);
+    expect(updatedState.playerTotal).toBe(state.playerTotal + charge.value);
+    expect(updatedState.rng).toEqual(charge.rng);
+  });
+
+  it("detects when a charge takes the player over the code", () => {
+    const roundState = startRound(createRng(12345));
+    const nextCharge = randomInt(roundState.rng, CHARGE_MIN, CHARGE_MAX);
+    const state = {
+      ...roundState,
+      code: roundState.playerTotal + nextCharge.value - 1,
+    };
+
+    const updatedState = takePlayerCharge(state);
+
+    expect(updatedState.isPlayerOverloaded).toBe(true);
+  });
+
+  it("does not overload when a charge reaches the code exactly", () => {
+    const roundState = startRound(createRng(12345));
+    const nextCharge = randomInt(roundState.rng, CHARGE_MIN, CHARGE_MAX);
+    const state = {
+      ...roundState,
+      code: roundState.playerTotal + nextCharge.value,
+    };
+
+    const updatedState = takePlayerCharge(state);
+
+    expect(updatedState.playerTotal).toBe(updatedState.code);
+    expect(updatedState.isPlayerOverloaded).toBe(false);
+  });
+
+  it("does not mutate the round when the player takes a charge", () => {
+    const state = startRound(createRng(12345));
+    const originalState = structuredClone(state);
+
+    takePlayerCharge(state);
+
+    expect(state).toEqual(originalState);
   });
 
   it("produces the same round for the same seed", () => {

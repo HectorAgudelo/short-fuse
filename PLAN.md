@@ -12,7 +12,7 @@ Do the tasks in order. Each task is one small pull request. Tick the box in the 
 - [x] **02 — Config.** Create `src/core/config.ts` with every number from `GDD.md`: code range 21–30, charge range 1–10, decision timer 10 seconds, fuse size 3, segments lost on a normal loss 1, on a perfect-defuse loss 2, Rookie stop distance 4.
 - [x] **03 — Seeded random generator.** `src/core/rng.ts`: create a generator from a seed, and a function for a random whole number between a min and max. Tests: same seed gives the same sequence; numbers stay inside the range.
 - [x] **04 — Start a round.** `src/core/round.ts`: create the round state, roll the code, deal 2 visible charges to the player and 2 to the AI (one marked hidden). Tests for all of it.
-- [ ] **05 — Take a charge.** Player takes a charge; overload is detected when the total goes over the code. Tests.
+- [x] **05 — Take a charge.** Player takes a charge; overload is detected when the total goes over the code. Tests.
 - [ ] **06 — Lock in.** Player locks in; the round moves to the AI turn. Taking a charge after locking in is not allowed. Tests.
 - [ ] **07 — Rookie AI.** `src/core/ai.ts`: the Rookie rule from `GDD.md`. Tests using the GDD examples (code 27 with AI totals 20, 23, 27).
 - [ ] **08 — Round result.** Compare totals: overloads, closer total wins, perfect defuse, tie. Tests for every case.
