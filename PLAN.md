@@ -17,7 +17,7 @@ Do the tasks in order. Each task is one small pull request. Tick the box in the 
 - [x] **07 — Rookie AI.** `src/core/ai.ts`: the Rookie rule from `GDD.md`. Tests using the GDD examples (code 27 with AI totals 20, 23, 27).
 - [x] **08 — Round result.** Compare totals: overloads, closer total wins, perfect defuse, tie. Tests for every case.
 - [x] **09 — Match and fuses.** `src/core/match.ts`: both fuses start at 3, burn 1 on a normal loss and 2 on a perfect-defuse loss, nothing on a tie, match ends when a fuse reaches 0. Tests.
-- [ ] **10 — Taunts.** `src/core/taunts.ts`: a list of at least 10 short taunt lines and a function that picks one with the seeded generator. Test.
+- [x] **10 — Taunts.** `src/core/taunts.ts`: a list of at least 10 short taunt lines and a function that picks one with the seeded generator. Test.
 
 ## Phase 3: Screens (src/scenes)
 
