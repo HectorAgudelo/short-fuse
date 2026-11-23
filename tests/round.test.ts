@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { CHARGE_MAX, CHARGE_MIN } from "../src/core/config";
 import { createRng, randomInt } from "../src/core/rng";
-import { startRound, takePlayerCharge } from "../src/core/round";
+import { lockInPlayer, startRound, takePlayerCharge } from "../src/core/round";
 
 describe("startRound", () => {
   it("rolls a code within the code range", () => {
@@ -41,6 +41,38 @@ describe("startRound", () => {
     expect(state.aiTotal).toBe(state.aiCharges[0] + state.aiCharges[1]);
   });
 
+  it("starts on the player turn", () => {
+    const state = startRound(createRng(12345));
+
+    expect(state.turn).toBe("player");
+  });
+
+  it("moves to the AI turn when the player locks in", () => {
+    const state = startRound(createRng(12345));
+
+    const updatedState = lockInPlayer(state);
+
+    expect(updatedState.turn).toBe("ai");
+  });
+
+  it("does not mutate the round when the player locks in", () => {
+    const state = startRound(createRng(12345));
+    const originalState = structuredClone(state);
+
+    lockInPlayer(state);
+
+    expect(state).toEqual(originalState);
+  });
+
+  it("does not pass an overloaded round to the AI", () => {
+    const state = {
+      ...startRound(createRng(12345)),
+      isPlayerOverloaded: true,
+    };
+
+    expect(lockInPlayer(state)).toEqual(state);
+  });
+
   it("adds a seeded charge to the player total", () => {
     const state = startRound(createRng(12345));
     const charge = randomInt(state.rng, CHARGE_MIN, CHARGE_MAX);
@@ -53,6 +85,14 @@ describe("startRound", () => {
     ]);
     expect(updatedState.playerTotal).toBe(state.playerTotal + charge.value);
     expect(updatedState.rng).toEqual(charge.rng);
+  });
+
+  it("does not take a charge after the player locks in", () => {
+    const state = lockInPlayer(startRound(createRng(12345)));
+
+    const updatedState = takePlayerCharge(state);
+
+    expect(updatedState).toEqual(state);
   });
 
   it("detects when a charge takes the player over the code", () => {
