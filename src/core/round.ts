@@ -9,6 +9,7 @@ export type RoundState = {
   playerTotal: number;
   isPlayerOverloaded: boolean;
   aiTotal: number;
+  turn: "player" | "ai";
   rng: Rng;
 };
 
@@ -31,12 +32,29 @@ export function startRound(rng: Rng): RoundState {
     playerTotal: playerCharges[0] + playerCharges[1],
     isPlayerOverloaded: false,
     aiTotal: aiCharges[0] + aiCharges[1],
+    turn: "player",
     rng: aiSecond.rng,
+  };
+}
+
+// Locks in the player's total and passes the round to the AI.
+export function lockInPlayer(state: RoundState): RoundState {
+  if (state.turn !== "player" || state.isPlayerOverloaded) {
+    return state;
+  }
+
+  return {
+    ...state,
+    turn: "ai",
   };
 }
 
 // Adds a seeded charge to the player and records whether the new total overloads.
 export function takePlayerCharge(state: RoundState): RoundState {
+  if (state.turn !== "player") {
+    return state;
+  }
+
   const chargeResult = randomInt(state.rng, CHARGE_MIN, CHARGE_MAX);
   const playerTotal = state.playerTotal + chargeResult.value;
 
