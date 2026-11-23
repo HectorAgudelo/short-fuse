@@ -14,7 +14,7 @@ Do the tasks in order. Each task is one small pull request. Tick the box in the 
 - [x] **04 — Start a round.** `src/core/round.ts`: create the round state, roll the code, deal 2 visible charges to the player and 2 to the AI (one marked hidden). Tests for all of it.
 - [x] **05 — Take a charge.** Player takes a charge; overload is detected when the total goes over the code. Tests.
 - [x] **06 — Lock in.** Player locks in; the round moves to the AI turn. Taking a charge after locking in is not allowed. Tests.
-- [ ] **07 — Rookie AI.** `src/core/ai.ts`: the Rookie rule from `GDD.md`. Tests using the GDD examples (code 27 with AI totals 20, 23, 27).
+- [x] **07 — Rookie AI.** `src/core/ai.ts`: the Rookie rule from `GDD.md`. Tests using the GDD examples (code 27 with AI totals 20, 23, 27).
 - [ ] **08 — Round result.** Compare totals: overloads, closer total wins, perfect defuse, tie. Tests for every case.
 - [ ] **09 — Match and fuses.** `src/core/match.ts`: both fuses start at 3, burn 1 on a normal loss and 2 on a perfect-defuse loss, nothing on a tie, match ends when a fuse reaches 0. Tests.
 - [ ] **10 — Taunts.** `src/core/taunts.ts`: a list of at least 10 short taunt lines and a function that picks one with the seeded generator. Test.
