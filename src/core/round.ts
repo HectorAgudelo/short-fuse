@@ -1,9 +1,4 @@
-import {
-  CHARGE_MAX,
-  CHARGE_MIN,
-  CODE_MAX,
-  CODE_MIN,
-} from "./config";
+import { CHARGE_MAX, CHARGE_MIN, CODE_MAX, CODE_MIN } from "./config";
 import { randomInt, type Rng } from "./rng";
 
 export type RoundState = {

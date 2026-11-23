@@ -34,7 +34,9 @@ describe("startRound", () => {
   it("sets both totals to the sum of their dealt charges", () => {
     const state = startRound(createRng(12345));
 
-    expect(state.playerTotal).toBe(state.playerCharges[0] + state.playerCharges[1]);
+    expect(state.playerTotal).toBe(
+      state.playerCharges[0] + state.playerCharges[1],
+    );
     expect(state.aiTotal).toBe(state.aiCharges[0] + state.aiCharges[1]);
   });
 
