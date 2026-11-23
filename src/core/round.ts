@@ -13,6 +13,41 @@ export type RoundState = {
   rng: Rng;
 };
 
+export type RoundResult = {
+  winner: "player" | "ai" | "tie";
+  isPerfectDefuse: boolean;
+};
+
+// Compares round totals after accounting for overloads and perfect defuses.
+export function compareRoundTotals(state: RoundState): RoundResult {
+  if (state.isPlayerOverloaded) {
+    return { winner: "ai", isPerfectDefuse: false };
+  }
+
+  if (state.aiTotal > state.code) {
+    return { winner: "player", isPerfectDefuse: false };
+  }
+
+  const playerDistance = Math.abs(state.code - state.playerTotal);
+  const aiDistance = Math.abs(state.code - state.aiTotal);
+
+  if (playerDistance === aiDistance) {
+    return { winner: "tie", isPerfectDefuse: false };
+  }
+
+  if (playerDistance < aiDistance) {
+    return {
+      winner: "player",
+      isPerfectDefuse: state.playerTotal === state.code,
+    };
+  }
+
+  return {
+    winner: "ai",
+    isPerfectDefuse: state.aiTotal === state.code,
+  };
+}
+
 // Creates a new round with a rolled code and four initial charges.
 export function startRound(rng: Rng): RoundState {
   const codeResult = randomInt(rng, CODE_MIN, CODE_MAX);
