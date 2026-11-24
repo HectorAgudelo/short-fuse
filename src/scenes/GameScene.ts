@@ -2,7 +2,12 @@ import Phaser from "phaser";
 import { FUSE_SIZE } from "../core/config";
 import { startMatch, type MatchState } from "../core/match";
 import { createRng } from "../core/rng";
-import { startRound, type RoundState } from "../core/round";
+import {
+  lockInPlayer,
+  startRound,
+  takePlayerCharge,
+  type RoundState,
+} from "../core/round";
 
 const INITIAL_SEED = 1;
 
@@ -39,6 +44,10 @@ function formatAiDisplay(round: RoundState): {
 export class GameScene extends Phaser.Scene {
   private matchState: MatchState;
   private roundState: RoundState;
+  private playerTotalText?: Phaser.GameObjects.Text;
+  private playerChargesText?: Phaser.GameObjects.Text;
+  private aiTotalText?: Phaser.GameObjects.Text;
+  private aiChargesText?: Phaser.GameObjects.Text;
 
   constructor() {
     super({ key: "GameScene" });
@@ -54,6 +63,48 @@ export class GameScene extends Phaser.Scene {
     this.drawPlayerPanel(this.roundState, this.matchState.playerFuse);
     this.drawAiPanel(this.roundState, this.matchState.aiFuse);
     this.drawActionButtons();
+    this.bindKeyboardControls();
+  }
+
+  private handleTakeCharge(): void {
+    if (
+      this.roundState.turn !== "player" ||
+      this.roundState.isPlayerOverloaded
+    ) {
+      return;
+    }
+    this.roundState = takePlayerCharge(this.roundState);
+    this.refreshRoundDisplay();
+  }
+
+  private handleLockIn(): void {
+    if (
+      this.roundState.turn !== "player" ||
+      this.roundState.isPlayerOverloaded
+    ) {
+      return;
+    }
+    this.roundState = lockInPlayer(this.roundState);
+    this.refreshRoundDisplay();
+  }
+
+  private refreshRoundDisplay(): void {
+    this.playerTotalText?.setText(`Total: ${this.roundState.playerTotal}`);
+    this.playerChargesText?.setText(
+      `Charges: ${this.roundState.playerCharges.join(" + ")}`,
+    );
+    const aiDisplay = formatAiDisplay(this.roundState);
+    this.aiTotalText?.setText(`Total: ${aiDisplay.totalText}`);
+    this.aiChargesText?.setText(`Charges: ${aiDisplay.chargesText}`);
+  }
+
+  private bindKeyboardControls(): void {
+    this.input.keyboard?.on("keydown-SPACE", () => {
+      this.handleTakeCharge();
+    });
+    this.input.keyboard?.on("keydown-ENTER", () => {
+      this.handleLockIn();
+    });
   }
 
   private drawBombCode(code: number): void {
@@ -88,7 +139,7 @@ export class GameScene extends Phaser.Scene {
         color: "#93c5fd",
       })
       .setOrigin(0.5);
-    this.add
+    this.playerTotalText = this.add
       .text(centerX, 265, `Total: ${round.playerTotal}`, {
         fontFamily: "Arial",
         fontSize: "34px",
@@ -96,7 +147,7 @@ export class GameScene extends Phaser.Scene {
         color: "#ffffff",
       })
       .setOrigin(0.5);
-    this.add
+    this.playerChargesText = this.add
       .text(centerX, 315, `Charges: ${round.playerCharges.join(" + ")}`, {
         fontFamily: "Arial",
         fontSize: "20px",
@@ -120,7 +171,7 @@ export class GameScene extends Phaser.Scene {
         color: "#fdba74",
       })
       .setOrigin(0.5);
-    this.add
+    this.aiTotalText = this.add
       .text(centerX, 265, `Total: ${aiDisplay.totalText}`, {
         fontFamily: "Arial",
         fontSize: "34px",
@@ -128,7 +179,7 @@ export class GameScene extends Phaser.Scene {
         color: "#ffffff",
       })
       .setOrigin(0.5);
-    this.add
+    this.aiChargesText = this.add
       .text(centerX, 315, `Charges: ${aiDisplay.chargesText}`, {
         fontFamily: "Arial",
         fontSize: "20px",
@@ -162,8 +213,12 @@ export class GameScene extends Phaser.Scene {
   }
 
   private drawActionButtons(): void {
-    this.drawButton(270, 505, "Take charge", 0x2563eb);
-    this.drawButton(530, 505, "Lock in", 0x16a34a);
+    this.drawButton(270, 505, "Take charge", 0x2563eb, () => {
+      this.handleTakeCharge();
+    });
+    this.drawButton(530, 505, "Lock in", 0x16a34a, () => {
+      this.handleLockIn();
+    });
   }
 
   private drawButton(
@@ -171,10 +226,13 @@ export class GameScene extends Phaser.Scene {
     centerY: number,
     label: string,
     fillColor: number,
+    onClick: () => void,
   ): void {
     this.add
       .rectangle(centerX, centerY, 210, 58, fillColor)
-      .setStrokeStyle(2, 0xffffff);
+      .setStrokeStyle(2, 0xffffff)
+      .setInteractive({ useHandCursor: true })
+      .on("pointerdown", onClick);
     this.add
       .text(centerX, centerY, label, {
         fontFamily: "Arial",
