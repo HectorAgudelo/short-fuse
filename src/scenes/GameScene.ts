@@ -99,6 +99,7 @@ export class GameScene extends Phaser.Scene {
   }
 
   private bindKeyboardControls(): void {
+    this.input.keyboard?.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE, true);
     this.input.keyboard?.on("keydown-SPACE", () => {
       this.handleTakeCharge();
     });
