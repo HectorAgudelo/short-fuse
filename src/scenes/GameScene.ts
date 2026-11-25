@@ -1,4 +1,5 @@
 import Phaser from "phaser";
+import { advanceAiTurn, createAiTurnState, type AiTurnState } from "../core/ai";
 import { startMatch, type MatchState } from "../core/match";
 import { createRng } from "../core/rng";
 import {
@@ -22,7 +23,7 @@ import {
   type RoundDisplay,
 } from "./GameSceneUi";
 
-const INITIAL_SEED = 1;
+const INITIAL_SEED = 54321;
 const MILLISECONDS_PER_SECOND = 1000;
 const TIMER_BAR_X = 400;
 const TIMER_BAR_Y = 562;
@@ -36,6 +37,7 @@ export class GameScene extends Phaser.Scene {
   private matchState: MatchState;
   private roundState: RoundState;
   private decisionTimer: DecisionTimerState;
+  private aiTurnState: AiTurnState;
   private roundDisplay?: RoundDisplay;
   private timerBarFill?: Phaser.GameObjects.Rectangle;
 
@@ -44,12 +46,14 @@ export class GameScene extends Phaser.Scene {
     this.matchState = startMatch();
     this.roundState = startRound(createRng(INITIAL_SEED));
     this.decisionTimer = createDecisionTimer();
+    this.aiTurnState = createAiTurnState();
   }
 
   create(): void {
     this.matchState = startMatch();
     this.roundState = startRound(createRng(INITIAL_SEED));
     this.decisionTimer = createDecisionTimer();
+    this.aiTurnState = createAiTurnState();
 
     this.drawBombCode(this.roundState.code);
     this.roundDisplay = drawRoundPanels(
@@ -69,10 +73,16 @@ export class GameScene extends Phaser.Scene {
   }
 
   update(_time: number, deltaMs: number): void {
+    const elapsedSeconds = deltaMs / MILLISECONDS_PER_SECOND;
+    this.updateDecisionTimer(elapsedSeconds);
+    this.updateAiTurn(elapsedSeconds);
+  }
+
+  private updateDecisionTimer(elapsedSeconds: number): void {
     const step = advanceDecisionTimer(
       this.decisionTimer,
       this.roundState,
-      deltaMs / MILLISECONDS_PER_SECOND,
+      elapsedSeconds,
     );
     this.decisionTimer = step.timer;
     if (step.hasExpired) {
@@ -80,6 +90,19 @@ export class GameScene extends Phaser.Scene {
       this.refreshRoundDisplay();
     }
     this.refreshTimerBar();
+  }
+
+  private updateAiTurn(elapsedSeconds: number): void {
+    const step = advanceAiTurn(
+      this.aiTurnState,
+      this.roundState,
+      elapsedSeconds,
+    );
+    this.aiTurnState = step.aiTurn;
+    if (step.hasChanged) {
+      this.roundState = step.round;
+      this.refreshRoundDisplay();
+    }
   }
 
   private handleTakeCharge(): void {
@@ -114,7 +137,7 @@ export class GameScene extends Phaser.Scene {
 
   private refreshRoundDisplay(): void {
     if (this.roundDisplay) {
-      updateRoundDisplay(this.roundDisplay, this.roundState);
+      updateRoundDisplay(this.roundDisplay, this.roundState, this.aiTurnState);
     }
   }
 

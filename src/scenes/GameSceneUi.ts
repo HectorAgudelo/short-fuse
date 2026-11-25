@@ -1,4 +1,5 @@
 import Phaser from "phaser";
+import type { AiTurnState } from "../core/ai";
 import { FUSE_SIZE } from "../core/config";
 import type { RoundState } from "../core/round";
 
@@ -7,6 +8,7 @@ export type RoundDisplay = {
   playerChargesText: Phaser.GameObjects.Text;
   aiTotalText: Phaser.GameObjects.Text;
   aiChargesText: Phaser.GameObjects.Text;
+  aiTauntText: Phaser.GameObjects.Text;
 };
 type AiDisplay = {
   chargesText: string;
@@ -21,24 +23,30 @@ export function drawRoundPanels(
 ): RoundDisplay {
   const playerText = drawPlayerPanel(scene, round, playerFuse);
   const aiText = drawAiPanel(scene, round, aiFuse);
+  const aiTauntText = drawAiTauntText(scene);
 
   return {
     ...playerText,
     ...aiText,
+    aiTauntText,
   };
 }
-// Updates the panel text after the player takes an action.
+// Updates the panel text and AI taunt after a player or AI step.
 export function updateRoundDisplay(
   display: RoundDisplay,
   round: RoundState,
+  aiTurn: AiTurnState,
 ): void {
   display.playerTotalText.setText(`Total: ${round.playerTotal}`);
   display.playerChargesText.setText(
     `Charges: ${round.playerCharges.join(" + ")}`,
   );
-  const aiDisplay = formatAiDisplay(round);
+  const aiDisplay = formatAiDisplay(round, aiTurn.isHiddenChargeRevealed);
   display.aiTotalText.setText(`Total: ${aiDisplay.totalText}`);
   display.aiChargesText.setText(`Charges: ${aiDisplay.chargesText}`);
+  display.aiTauntText.setText(
+    aiTurn.currentTaunt ? `"${aiTurn.currentTaunt}"` : "",
+  );
 }
 // Draws the action buttons and connects them to the player controls.
 export function drawActionButtons(
@@ -96,7 +104,7 @@ function drawAiPanel(
   aiChargesText: Phaser.GameObjects.Text;
 } {
   const centerX = 585;
-  const aiDisplay = formatAiDisplay(round);
+  const aiDisplay = formatAiDisplay(round, false);
   scene.add
     .rectangle(centerX, 300, 310, 220, 0x352932)
     .setStrokeStyle(2, 0xf97316);
@@ -126,8 +134,21 @@ function drawAiPanel(
   drawFuseRow(scene, centerX, 370, fuseRemaining);
   return { aiTotalText, aiChargesText };
 }
-function formatAiDisplay(round: RoundState): AiDisplay {
-  const isChargeHidden = round.turn === "player";
+function drawAiTauntText(scene: Phaser.Scene): Phaser.GameObjects.Text {
+  return scene.add
+    .text(585, 442, "", {
+      fontFamily: "Arial",
+      fontSize: "20px",
+      fontStyle: "italic",
+      color: "#fdba74",
+    })
+    .setOrigin(0.5);
+}
+function formatAiDisplay(
+  round: RoundState,
+  isHiddenChargeRevealed: boolean,
+): AiDisplay {
+  const isChargeHidden = !isHiddenChargeRevealed;
   const chargeLabels: string[] = [];
   let visibleTotal = 0;
 
