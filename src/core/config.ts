@@ -21,3 +21,10 @@ export const SHAKE_MIN_INTENSITY = 0.004;
 export const SHAKE_MAX_INTENSITY = 0.022;
 export const SHAKE_MIN_DURATION_MS = 120;
 export const SHAKE_MAX_DURATION_MS = 300;
+
+export const TICK_MIN_INTERVAL_SECONDS = 0.18;
+export const TICK_MAX_INTERVAL_SECONDS = 0.85;
+export const TICK_MAX_DISTANCE = 20;
+
+export const EXPLOSION_SHAKE_INTENSITY = 0.035;
+export const EXPLOSION_SHAKE_DURATION_MS = 550;
