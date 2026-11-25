@@ -1,6 +1,12 @@
 import Phaser from "phaser";
 import { advanceAiTurn, createAiTurnState, type AiTurnState } from "../core/ai";
-import { startMatch, type MatchState } from "../core/match";
+import {
+  advanceRoundFlow,
+  createRoundFlowState,
+  startMatch,
+  type MatchState,
+  type RoundFlowState,
+} from "../core/match";
 import { createRng } from "../core/rng";
 import {
   lockInPlayer,
@@ -22,6 +28,7 @@ import {
   updateRoundDisplay,
   type RoundDisplay,
 } from "./GameSceneUi";
+import { MatchOverScene } from "./MatchOverScene";
 
 const INITIAL_SEED = 54321;
 const MILLISECONDS_PER_SECOND = 1000;
@@ -38,6 +45,7 @@ export class GameScene extends Phaser.Scene {
   private roundState: RoundState;
   private decisionTimer: DecisionTimerState;
   private aiTurnState: AiTurnState;
+  private roundFlow: RoundFlowState;
   private roundDisplay?: RoundDisplay;
   private timerBarFill?: Phaser.GameObjects.Rectangle;
 
@@ -47,21 +55,43 @@ export class GameScene extends Phaser.Scene {
     this.roundState = startRound(createRng(INITIAL_SEED));
     this.decisionTimer = createDecisionTimer();
     this.aiTurnState = createAiTurnState();
+    this.roundFlow = createRoundFlowState();
   }
 
   create(): void {
+    if (!this.scene.get("MatchOverScene")) {
+      this.scene.add("MatchOverScene", MatchOverScene, false);
+    }
     this.matchState = startMatch();
     this.roundState = startRound(createRng(INITIAL_SEED));
     this.decisionTimer = createDecisionTimer();
     this.aiTurnState = createAiTurnState();
+    this.roundFlow = createRoundFlowState();
 
+    this.renderRoundScreen();
+    this.bindKeyboardControls();
+  }
+
+  update(_time: number, deltaMs: number): void {
+    const elapsedSeconds = deltaMs / MILLISECONDS_PER_SECOND;
+    if (!this.roundFlow.isShowingResult) {
+      this.updateDecisionTimer(elapsedSeconds);
+      this.updateAiTurn(elapsedSeconds);
+    }
+    this.updateRoundFlow(elapsedSeconds);
+  }
+
+  private renderRoundScreen(): void {
+    this.children.removeAll();
     this.drawBombCode(this.roundState.code);
+    this.drawRoundResultBanner();
     this.roundDisplay = drawRoundPanels(
       this,
       this.roundState,
       this.matchState.playerFuse,
       this.matchState.aiFuse,
     );
+    updateRoundDisplay(this.roundDisplay, this.roundState, this.aiTurnState);
     drawActionButtons(
       this,
       () => this.handleTakeCharge(),
@@ -69,13 +99,6 @@ export class GameScene extends Phaser.Scene {
     );
     this.drawTimerBar();
     this.refreshTimerBar();
-    this.bindKeyboardControls();
-  }
-
-  update(_time: number, deltaMs: number): void {
-    const elapsedSeconds = deltaMs / MILLISECONDS_PER_SECOND;
-    this.updateDecisionTimer(elapsedSeconds);
-    this.updateAiTurn(elapsedSeconds);
   }
 
   private updateDecisionTimer(elapsedSeconds: number): void {
@@ -105,8 +128,34 @@ export class GameScene extends Phaser.Scene {
     }
   }
 
+  private updateRoundFlow(elapsedSeconds: number): void {
+    const step = advanceRoundFlow(
+      this.matchState,
+      this.roundState,
+      this.roundFlow,
+      this.aiTurnState.isTurnComplete,
+      elapsedSeconds,
+    );
+    this.matchState = step.match;
+    this.roundState = step.round;
+    this.roundFlow = step.flow;
+
+    if (step.outcome === "round-resolved") {
+      this.renderRoundScreen();
+    } else if (step.outcome === "next-round") {
+      this.decisionTimer = createDecisionTimer();
+      this.aiTurnState = createAiTurnState();
+      this.renderRoundScreen();
+    } else if (step.outcome === "match-over") {
+      this.scene.start("MatchOverScene", {
+        winner: this.matchState.matchWinner,
+      });
+    }
+  }
+
   private handleTakeCharge(): void {
     if (
+      this.roundFlow.isShowingResult ||
       this.roundState.turn !== "player" ||
       this.roundState.isPlayerOverloaded
     ) {
@@ -124,6 +173,7 @@ export class GameScene extends Phaser.Scene {
 
   private handleLockIn(): void {
     if (
+      this.roundFlow.isShowingResult ||
       this.roundState.turn !== "player" ||
       this.roundState.isPlayerOverloaded
     ) {
@@ -139,6 +189,26 @@ export class GameScene extends Phaser.Scene {
     if (this.roundDisplay) {
       updateRoundDisplay(this.roundDisplay, this.roundState, this.aiTurnState);
     }
+  }
+
+  private drawRoundResultBanner(): void {
+    if (!this.roundFlow.resultText) {
+      return;
+    }
+    let color = "#facc15";
+    if (this.roundFlow.roundWinner === "player") {
+      color = "#4ade80";
+    } else if (this.roundFlow.roundWinner === "ai") {
+      color = "#f87171";
+    }
+    this.add
+      .text(400, 170, this.roundFlow.resultText, {
+        fontFamily: "Arial",
+        fontSize: "22px",
+        fontStyle: "bold",
+        color,
+      })
+      .setOrigin(0.5);
   }
 
   private drawTimerBar(): void {
