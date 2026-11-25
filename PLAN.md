@@ -31,7 +31,7 @@ Do the tasks in order. Each task is one small pull request. Tick the box in the 
 ## Phase 4: Feel
 
 - [x] **17 — Screen shake.** Shake on every charge; bigger charges shake more.
-- [ ] **18 — Sounds.** Ticking that speeds up as the player gets close to the code, defuse sound, perfect-defuse sound, spark on a lost round, explosion at match end. Mute button works.
+- [x] **18 — Sounds.** Ticking that speeds up as the player gets close to the code, defuse sound, perfect-defuse sound, spark on a lost round, explosion at match end. Mute button works.
 - [ ] **19 — Phone check.** Layout fits a phone screen in portrait; buttons are large enough to tap.
 
 ## Phase 5: Done check

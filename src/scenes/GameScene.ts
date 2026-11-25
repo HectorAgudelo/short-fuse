@@ -16,6 +16,12 @@ import {
 } from "../core/round";
 import { getChargeShake } from "../core/shake";
 import {
+  advanceTickTimer,
+  createTickTimer,
+  getRoundOutcomeCue,
+  type TickTimerState,
+} from "../core/sound";
+import {
   advanceDecisionTimer,
   createDecisionTimer,
   getTimerProgress,
@@ -23,6 +29,7 @@ import {
   stopDecisionTimer,
   type DecisionTimerState,
 } from "../core/timer";
+import { playRoundOutcomeFeedback, playSoundCue } from "./GameAudio";
 import {
   drawActionButtons,
   drawRoundPanels,
@@ -49,6 +56,7 @@ export class GameScene extends Phaser.Scene {
   private matchState: MatchState;
   private roundState: RoundState;
   private decisionTimer: DecisionTimerState;
+  private tickTimer: TickTimerState;
   private aiTurnState: AiTurnState;
   private roundFlow: RoundFlowState;
   private roundDisplay?: RoundDisplay;
@@ -59,6 +67,7 @@ export class GameScene extends Phaser.Scene {
     this.matchState = startMatch();
     this.roundState = startRound(createRng(INITIAL_SEED));
     this.decisionTimer = createDecisionTimer();
+    this.tickTimer = createTickTimer(this.roundState);
     this.aiTurnState = createAiTurnState();
     this.roundFlow = createRoundFlowState();
   }
@@ -71,6 +80,7 @@ export class GameScene extends Phaser.Scene {
     this.matchState = startMatch();
     this.roundState = startRound(createRng(this.matchSeed));
     this.decisionTimer = createDecisionTimer();
+    this.tickTimer = createTickTimer(this.roundState);
     this.aiTurnState = createAiTurnState();
     this.roundFlow = createRoundFlowState();
 
@@ -82,6 +92,7 @@ export class GameScene extends Phaser.Scene {
     const elapsedSeconds = deltaMs / MILLISECONDS_PER_SECOND;
     if (!this.roundFlow.isShowingResult) {
       this.updateDecisionTimer(elapsedSeconds);
+      this.updateTickSound(elapsedSeconds);
       this.updateAiTurn(elapsedSeconds);
     }
     this.updateRoundFlow(elapsedSeconds);
@@ -122,6 +133,18 @@ export class GameScene extends Phaser.Scene {
     this.refreshTimerBar();
   }
 
+  private updateTickSound(elapsedSeconds: number): void {
+    const step = advanceTickTimer(
+      this.tickTimer,
+      this.roundState,
+      elapsedSeconds,
+    );
+    this.tickTimer = step.timer;
+    if (step.shouldPlayTick) {
+      playSoundCue(this, "tick");
+    }
+  }
+
   private updateAiTurn(elapsedSeconds: number): void {
     const previousAiCount = this.roundState.aiCharges.length;
     const step = advanceAiTurn(
@@ -153,8 +176,11 @@ export class GameScene extends Phaser.Scene {
 
     if (step.outcome === "round-resolved") {
       this.renderRoundScreen();
+      const cue = getRoundOutcomeCue(this.roundState, this.matchState);
+      playRoundOutcomeFeedback(this, cue);
     } else if (step.outcome === "next-round") {
       this.decisionTimer = createDecisionTimer();
+      this.tickTimer = createTickTimer(this.roundState);
       this.aiTurnState = createAiTurnState();
       this.renderRoundScreen();
     } else if (step.outcome === "match-over") {
