@@ -15,3 +15,4 @@ export const PERFECT_DEFUSE_LOSS_SEGMENTS = 2;
 export const ROOKIE_STOP_DISTANCE = 4;
 export const AI_REVEAL_DELAY_SECONDS = 0.8;
 export const AI_CHARGE_DELAY_SECONDS = 1;
+export const ROUND_RESULT_DELAY_SECONDS = 2;
