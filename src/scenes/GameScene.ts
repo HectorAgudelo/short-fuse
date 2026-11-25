@@ -28,7 +28,10 @@ import {
   updateRoundDisplay,
   type RoundDisplay,
 } from "./GameSceneUi";
-import { MatchOverScene } from "./MatchOverScene";
+
+export type GameSceneData = {
+  seed?: number;
+};
 
 const INITIAL_SEED = 54321;
 const MILLISECONDS_PER_SECOND = 1000;
@@ -41,6 +44,7 @@ const TIMER_NORMAL_COLOR = 0x38bdf8;
 const TIMER_WARNING_COLOR = 0xef4444;
 
 export class GameScene extends Phaser.Scene {
+  private matchSeed: number = INITIAL_SEED;
   private matchState: MatchState;
   private roundState: RoundState;
   private decisionTimer: DecisionTimerState;
@@ -58,12 +62,13 @@ export class GameScene extends Phaser.Scene {
     this.roundFlow = createRoundFlowState();
   }
 
+  init(data?: GameSceneData): void {
+    this.matchSeed = data?.seed ?? INITIAL_SEED;
+  }
+
   create(): void {
-    if (!this.scene.get("MatchOverScene")) {
-      this.scene.add("MatchOverScene", MatchOverScene, false);
-    }
     this.matchState = startMatch();
-    this.roundState = startRound(createRng(INITIAL_SEED));
+    this.roundState = startRound(createRng(this.matchSeed));
     this.decisionTimer = createDecisionTimer();
     this.aiTurnState = createAiTurnState();
     this.roundFlow = createRoundFlowState();
@@ -249,6 +254,8 @@ export class GameScene extends Phaser.Scene {
   }
 
   private bindKeyboardControls(): void {
+    this.input.keyboard?.removeAllListeners("keydown-SPACE");
+    this.input.keyboard?.removeAllListeners("keydown-ENTER");
     this.input.keyboard?.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE, true);
     this.input.keyboard?.on("keydown-SPACE", () => {
       this.handleTakeCharge();
