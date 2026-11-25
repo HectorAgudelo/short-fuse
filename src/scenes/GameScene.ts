@@ -14,6 +14,7 @@ import {
   takePlayerCharge,
   type RoundState,
 } from "../core/round";
+import { getChargeShake } from "../core/shake";
 import {
   advanceDecisionTimer,
   createDecisionTimer,
@@ -115,12 +116,14 @@ export class GameScene extends Phaser.Scene {
     this.decisionTimer = step.timer;
     if (step.hasExpired) {
       this.roundState = step.round;
+      this.shakeForLatestCharge(this.roundState.playerCharges);
       this.refreshRoundDisplay();
     }
     this.refreshTimerBar();
   }
 
   private updateAiTurn(elapsedSeconds: number): void {
+    const previousAiCount = this.roundState.aiCharges.length;
     const step = advanceAiTurn(
       this.aiTurnState,
       this.roundState,
@@ -129,6 +132,9 @@ export class GameScene extends Phaser.Scene {
     this.aiTurnState = step.aiTurn;
     if (step.hasChanged) {
       this.roundState = step.round;
+      if (this.roundState.aiCharges.length > previousAiCount) {
+        this.shakeForLatestCharge(this.roundState.aiCharges);
+      }
       this.refreshRoundDisplay();
     }
   }
@@ -167,6 +173,7 @@ export class GameScene extends Phaser.Scene {
       return;
     }
     this.roundState = takePlayerCharge(this.roundState);
+    this.shakeForLatestCharge(this.roundState.playerCharges);
     if (this.roundState.isPlayerOverloaded) {
       this.decisionTimer = stopDecisionTimer(this.decisionTimer);
     } else {
@@ -174,6 +181,15 @@ export class GameScene extends Phaser.Scene {
     }
     this.refreshRoundDisplay();
     this.refreshTimerBar();
+  }
+
+  private shakeForLatestCharge(charges: number[]): void {
+    const latestCharge = charges[charges.length - 1];
+    if (latestCharge === undefined) {
+      return;
+    }
+    const shake = getChargeShake(latestCharge);
+    this.cameras.main.shake(shake.durationMs, shake.intensity, true);
   }
 
   private handleLockIn(): void {

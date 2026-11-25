@@ -16,3 +16,8 @@ export const ROOKIE_STOP_DISTANCE = 4;
 export const AI_REVEAL_DELAY_SECONDS = 0.8;
 export const AI_CHARGE_DELAY_SECONDS = 1;
 export const ROUND_RESULT_DELAY_SECONDS = 2;
+
+export const SHAKE_MIN_INTENSITY = 0.004;
+export const SHAKE_MAX_INTENSITY = 0.022;
+export const SHAKE_MIN_DURATION_MS = 120;
+export const SHAKE_MAX_DURATION_MS = 300;
