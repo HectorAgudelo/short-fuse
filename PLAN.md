@@ -23,7 +23,7 @@ Do the tasks in order. Each task is one small pull request. Tick the box in the 
 
 - [x] **11 — Game screen layout.** `GameScene` shows the code, both totals (AI hidden charge as "??"), both fuses, and the two buttons, from a match state. Buttons do nothing yet. Simple shapes and text only.
 - [x] **12 — Player controls.** Take charge and Lock in buttons call the core functions. Keyboard: Space = Take charge, Enter = Lock in.
-- [ ] **13 — Decision timer.** 10-second timer bar; red in the last 3 seconds; when it runs out the player takes a charge automatically.
+- [x] **13 — Decision timer.** 10-second timer bar; red in the last 3 seconds; when it runs out the player takes a charge automatically.
 - [ ] **14 — AI turn.** Reveal the hidden charge after a short pause, then show each AI charge one by one with a taunt.
 - [ ] **15 — Round and match flow.** After each round show the result, burn fuse segments, start the next round. Go to the match-over screen when a fuse reaches 0.
 - [ ] **16 — Title and match-over screens.** `TitleScene` with Play and mute buttons. `MatchOverScene` with the winner and a Play again button.
