@@ -5,6 +5,7 @@ export const CHARGE_MIN = 1;
 export const CHARGE_MAX = 10;
 
 export const DECISION_TIMER_SECONDS = 10;
+export const DECISION_TIMER_WARNING_SECONDS = 3;
 
 export const FUSE_SIZE = 3;
 
