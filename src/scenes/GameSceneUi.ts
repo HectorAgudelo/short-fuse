@@ -3,6 +3,13 @@ import type { AiTurnState } from "../core/ai";
 import { FUSE_SIZE } from "../core/config";
 import type { RoundState } from "../core/round";
 
+const PANEL_CENTER_X = 240;
+const PANEL_WIDTH = 424;
+const PANEL_HEIGHT = 176;
+const BUTTON_WIDTH = 204;
+const BUTTON_HEIGHT = 76;
+const BUTTON_Y = 652;
+
 export type RoundDisplay = {
   playerTotalText: Phaser.GameObjects.Text;
   playerChargesText: Phaser.GameObjects.Text;
@@ -14,7 +21,7 @@ type AiDisplay = {
   chargesText: string;
   totalText: string;
 };
-// Draws both player panels and returns the text objects that change during a round.
+// Draws both player panels stacked for portrait play and returns dynamic texts.
 export function drawRoundPanels(
   scene: Phaser.Scene,
   round: RoundState,
@@ -48,14 +55,14 @@ export function updateRoundDisplay(
     aiTurn.currentTaunt ? `"${aiTurn.currentTaunt}"` : "",
   );
 }
-// Draws the action buttons and connects them to the player controls.
+// Draws large touch-friendly action buttons and connects them to controls.
 export function drawActionButtons(
   scene: Phaser.Scene,
   onTakeCharge: () => void,
   onLockIn: () => void,
 ): void {
-  drawButton(scene, 270, 505, "Take charge", 0x2563eb, onTakeCharge);
-  drawButton(scene, 530, 505, "Lock in", 0x16a34a, onLockIn);
+  drawButton(scene, 130, BUTTON_Y, "Take charge", 0x2563eb, onTakeCharge);
+  drawButton(scene, 350, BUTTON_Y, "Lock in", 0x16a34a, onLockIn);
 }
 function drawPlayerPanel(
   scene: Phaser.Scene,
@@ -65,12 +72,11 @@ function drawPlayerPanel(
   playerTotalText: Phaser.GameObjects.Text;
   playerChargesText: Phaser.GameObjects.Text;
 } {
-  const centerX = 215;
   scene.add
-    .rectangle(centerX, 300, 310, 220, 0x28303a)
+    .rectangle(PANEL_CENTER_X, 266, PANEL_WIDTH, PANEL_HEIGHT, 0x28303a)
     .setStrokeStyle(2, 0x3b82f6);
   scene.add
-    .text(centerX, 215, "YOU", {
+    .text(PANEL_CENTER_X, 200, "YOU", {
       fontFamily: "Arial",
       fontSize: "22px",
       fontStyle: "bold",
@@ -78,21 +84,23 @@ function drawPlayerPanel(
     })
     .setOrigin(0.5);
   const playerTotalText = scene.add
-    .text(centerX, 265, `Total: ${round.playerTotal}`, {
+    .text(PANEL_CENTER_X, 242, `Total: ${round.playerTotal}`, {
       fontFamily: "Arial",
-      fontSize: "34px",
+      fontSize: "32px",
       fontStyle: "bold",
       color: "#ffffff",
     })
     .setOrigin(0.5);
   const playerChargesText = scene.add
-    .text(centerX, 315, `Charges: ${round.playerCharges.join(" + ")}`, {
+    .text(PANEL_CENTER_X, 284, `Charges: ${round.playerCharges.join(" + ")}`, {
       fontFamily: "Arial",
       fontSize: "20px",
       color: "#cbd5e1",
+      align: "center",
+      wordWrap: { width: 396 },
     })
     .setOrigin(0.5);
-  drawFuseRow(scene, centerX, 370, fuseRemaining);
+  drawFuseRow(scene, PANEL_CENTER_X, 326, fuseRemaining);
   return { playerTotalText, playerChargesText };
 }
 function drawAiPanel(
@@ -103,13 +111,12 @@ function drawAiPanel(
   aiTotalText: Phaser.GameObjects.Text;
   aiChargesText: Phaser.GameObjects.Text;
 } {
-  const centerX = 585;
   const aiDisplay = formatAiDisplay(round, false);
   scene.add
-    .rectangle(centerX, 300, 310, 220, 0x352932)
+    .rectangle(PANEL_CENTER_X, 462, PANEL_WIDTH, PANEL_HEIGHT, 0x352932)
     .setStrokeStyle(2, 0xf97316);
   scene.add
-    .text(centerX, 215, "ROOKIE (AI)", {
+    .text(PANEL_CENTER_X, 396, "ROOKIE (AI)", {
       fontFamily: "Arial",
       fontSize: "22px",
       fontStyle: "bold",
@@ -117,30 +124,34 @@ function drawAiPanel(
     })
     .setOrigin(0.5);
   const aiTotalText = scene.add
-    .text(centerX, 265, `Total: ${aiDisplay.totalText}`, {
+    .text(PANEL_CENTER_X, 438, `Total: ${aiDisplay.totalText}`, {
       fontFamily: "Arial",
-      fontSize: "34px",
+      fontSize: "32px",
       fontStyle: "bold",
       color: "#ffffff",
     })
     .setOrigin(0.5);
   const aiChargesText = scene.add
-    .text(centerX, 315, `Charges: ${aiDisplay.chargesText}`, {
+    .text(PANEL_CENTER_X, 480, `Charges: ${aiDisplay.chargesText}`, {
       fontFamily: "Arial",
       fontSize: "20px",
       color: "#cbd5e1",
+      align: "center",
+      wordWrap: { width: 396 },
     })
     .setOrigin(0.5);
-  drawFuseRow(scene, centerX, 370, fuseRemaining);
+  drawFuseRow(scene, PANEL_CENTER_X, 522, fuseRemaining);
   return { aiTotalText, aiChargesText };
 }
 function drawAiTauntText(scene: Phaser.Scene): Phaser.GameObjects.Text {
   return scene.add
-    .text(585, 442, "", {
+    .text(PANEL_CENTER_X, 580, "", {
       fontFamily: "Arial",
       fontSize: "20px",
       fontStyle: "italic",
       color: "#fdba74",
+      align: "center",
+      wordWrap: { width: PANEL_WIDTH },
     })
     .setOrigin(0.5);
 }
@@ -204,7 +215,7 @@ function drawButton(
   onClick: () => void,
 ): void {
   scene.add
-    .rectangle(centerX, centerY, 210, 58, fillColor)
+    .rectangle(centerX, centerY, BUTTON_WIDTH, BUTTON_HEIGHT, fillColor)
     .setStrokeStyle(2, 0xffffff)
     .setInteractive({ useHandCursor: true })
     .on("pointerdown", onClick);

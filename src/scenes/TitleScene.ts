@@ -1,5 +1,6 @@
 import Phaser from "phaser";
 
+const CENTER_X = 240;
 const MUTE_OFF_COLOR = 0x334155;
 const MUTE_ON_COLOR = 0xdc2626;
 const MUTE_REGISTRY_KEY = "isMuted";
@@ -25,37 +26,39 @@ export class TitleScene extends Phaser.Scene {
 
   private drawTitleHeader(): void {
     this.add
-      .rectangle(400, 175, 440, 150, 0x2c323d)
+      .rectangle(CENTER_X, 240, 420, 170, 0x2c323d)
       .setStrokeStyle(3, 0xf59e0b);
     this.add
-      .text(400, 155, "SHORT FUSE", {
+      .text(CENTER_X, 216, "SHORT FUSE", {
         fontFamily: "Arial",
-        fontSize: "52px",
+        fontSize: "48px",
         fontStyle: "bold",
         color: "#ffffff",
       })
       .setOrigin(0.5);
     this.add
-      .text(400, 212, "Beat the bomb's code without overloading", {
+      .text(CENTER_X, 278, "Beat the bomb's code without overloading", {
         fontFamily: "Arial",
         fontSize: "18px",
         color: "#f59e0b",
+        align: "center",
+        wordWrap: { width: 380 },
       })
       .setOrigin(0.5);
   }
 
   private drawPlayButton(): void {
     this.add
-      .rectangle(400, 345, 220, 60, 0x16a34a)
+      .rectangle(CENTER_X, 440, 280, 76, 0x16a34a)
       .setStrokeStyle(2, 0xffffff)
       .setInteractive({ useHandCursor: true })
       .on("pointerdown", () => {
         this.startNewMatch();
       });
     this.add
-      .text(400, 345, "Play", {
+      .text(CENTER_X, 440, "Play", {
         fontFamily: "Arial",
-        fontSize: "26px",
+        fontSize: "28px",
         fontStyle: "bold",
         color: "#ffffff",
       })
@@ -64,16 +67,16 @@ export class TitleScene extends Phaser.Scene {
 
   private drawMuteButton(): void {
     this.muteButtonBg = this.add
-      .rectangle(400, 430, 220, 54, MUTE_OFF_COLOR)
+      .rectangle(CENTER_X, 548, 280, 72, MUTE_OFF_COLOR)
       .setStrokeStyle(2, 0xffffff)
       .setInteractive({ useHandCursor: true })
       .on("pointerdown", () => {
         this.toggleMute();
       });
     this.muteButtonLabel = this.add
-      .text(400, 430, "Mute: OFF", {
+      .text(CENTER_X, 548, "Mute: OFF", {
         fontFamily: "Arial",
-        fontSize: "22px",
+        fontSize: "24px",
         fontStyle: "bold",
         color: "#ffffff",
       })

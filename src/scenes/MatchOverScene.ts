@@ -1,5 +1,7 @@
 import Phaser from "phaser";
 
+const CENTER_X = 240;
+
 export type MatchOverData = {
   winner?: "player" | "ai" | null;
 };
@@ -29,20 +31,20 @@ export class MatchOverScene extends Phaser.Scene {
     const winnerColor = isPlayerWinner ? "#4ade80" : "#f87171";
 
     this.add
-      .rectangle(400, 235, 440, 170, 0x2c323d)
+      .rectangle(CENTER_X, 285, 420, 180, 0x2c323d)
       .setStrokeStyle(3, 0xf59e0b);
     this.add
-      .text(400, 205, "MATCH OVER", {
+      .text(CENTER_X, 252, "MATCH OVER", {
         fontFamily: "Arial",
-        fontSize: "48px",
+        fontSize: "44px",
         fontStyle: "bold",
         color: "#ffffff",
       })
       .setOrigin(0.5);
     this.add
-      .text(400, 268, winnerLabel, {
+      .text(CENTER_X, 320, winnerLabel, {
         fontFamily: "Arial",
-        fontSize: "28px",
+        fontSize: "26px",
         fontStyle: "bold",
         color: winnerColor,
       })
@@ -51,16 +53,16 @@ export class MatchOverScene extends Phaser.Scene {
 
   private drawPlayAgainButton(): void {
     this.add
-      .rectangle(400, 405, 220, 60, 0x2563eb)
+      .rectangle(CENTER_X, 475, 280, 76, 0x2563eb)
       .setStrokeStyle(2, 0xffffff)
       .setInteractive({ useHandCursor: true })
       .on("pointerdown", () => {
         this.startNewMatch();
       });
     this.add
-      .text(400, 405, "Play again", {
+      .text(CENTER_X, 475, "Play again", {
         fontFamily: "Arial",
-        fontSize: "24px",
+        fontSize: "26px",
         fontStyle: "bold",
         color: "#ffffff",
       })
