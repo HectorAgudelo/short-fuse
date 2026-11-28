@@ -6,10 +6,11 @@ import {
 import type { RoundOutcomeCue, SoundCueType } from "../core/sound";
 
 const MUTE_REGISTRY_KEY = "isMuted";
-const PLAYER_PANEL_X = 215;
-const AI_PANEL_X = 585;
-const PANEL_CENTER_Y = 300;
-const FUSE_ROW_Y = 370;
+const PANEL_CENTER_X = 240;
+const PLAYER_PANEL_Y = 266;
+const AI_PANEL_Y = 462;
+const PLAYER_FUSE_Y = 326;
+const AI_FUSE_Y = 522;
 
 // Plays a synthesized sound cue via Web Audio unless the game is muted.
 export function playSoundCue(scene: Phaser.Scene, cue: SoundCueType): void {
@@ -54,11 +55,11 @@ export function playRoundOutcomeFeedback(
     return;
   }
 
-  const targetX = cue.targetSide === "player" ? PLAYER_PANEL_X : AI_PANEL_X;
+  const isPlayerTarget = cue.targetSide === "player";
   if (cue.visualEffect === "spark") {
-    drawSparkBurst(scene, targetX);
+    drawSparkBurst(scene, isPlayerTarget ? PLAYER_FUSE_Y : AI_FUSE_Y);
   } else if (cue.visualEffect === "explosion") {
-    drawExplosionBurst(scene, targetX);
+    drawExplosionBurst(scene, isPlayerTarget ? PLAYER_PANEL_Y : AI_PANEL_Y);
   }
 }
 
@@ -121,9 +122,21 @@ function playNoiseBurst(
   source.stop(now + durationSeconds);
 }
 
-function drawSparkBurst(scene: Phaser.Scene, centerX: number): void {
-  const outerGlow = scene.add.circle(centerX, FUSE_ROW_Y, 28, 0xf97316, 0.85);
-  const innerCore = scene.add.circle(centerX, FUSE_ROW_Y, 14, 0xfef08a, 0.95);
+function drawSparkBurst(scene: Phaser.Scene, centerY: number): void {
+  const outerGlow = scene.add.circle(
+    PANEL_CENTER_X,
+    centerY,
+    28,
+    0xf97316,
+    0.85,
+  );
+  const innerCore = scene.add.circle(
+    PANEL_CENTER_X,
+    centerY,
+    14,
+    0xfef08a,
+    0.95,
+  );
 
   scene.tweens.add({
     targets: [outerGlow, innerCore],
@@ -137,7 +150,7 @@ function drawSparkBurst(scene: Phaser.Scene, centerX: number): void {
   });
 }
 
-function drawExplosionBurst(scene: Phaser.Scene, centerX: number): void {
+function drawExplosionBurst(scene: Phaser.Scene, centerY: number): void {
   scene.cameras.main.flash(350, 255, 165, 60, true);
   scene.cameras.main.shake(
     EXPLOSION_SHAKE_DURATION_MS,
@@ -146,13 +159,13 @@ function drawExplosionBurst(scene: Phaser.Scene, centerX: number): void {
   );
 
   const fireball = scene.add.circle(
-    centerX,
-    PANEL_CENTER_Y,
-    105,
+    PANEL_CENTER_X,
+    centerY,
+    92,
     0xef4444,
     0.85,
   );
-  const core = scene.add.circle(centerX, PANEL_CENTER_Y, 58, 0xfef08a, 0.95);
+  const core = scene.add.circle(PANEL_CENTER_X, centerY, 52, 0xfef08a, 0.95);
 
   scene.tweens.add({
     targets: [fireball, core],

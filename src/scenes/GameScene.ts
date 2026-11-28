@@ -43,10 +43,11 @@ export type GameSceneData = {
 
 const INITIAL_SEED = 54321;
 const MILLISECONDS_PER_SECOND = 1000;
-const TIMER_BAR_X = 400;
-const TIMER_BAR_Y = 562;
-const TIMER_BAR_WIDTH = 470;
-const TIMER_BAR_HEIGHT = 18;
+const CENTER_X = 240;
+const TIMER_BAR_X = CENTER_X;
+const TIMER_BAR_Y = 726;
+const TIMER_BAR_WIDTH = 424;
+const TIMER_BAR_HEIGHT = 20;
 const TIMER_BAR_INSET = 2;
 const TIMER_NORMAL_COLOR = 0x38bdf8;
 const TIMER_WARNING_COLOR = 0xef4444;
@@ -249,11 +250,13 @@ export class GameScene extends Phaser.Scene {
       color = "#f87171";
     }
     this.add
-      .text(400, 170, this.roundFlow.resultText, {
+      .text(CENTER_X, 152, this.roundFlow.resultText, {
         fontFamily: "Arial",
-        fontSize: "22px",
+        fontSize: "20px",
         fontStyle: "bold",
         color,
+        align: "center",
+        wordWrap: { width: 440 },
       })
       .setOrigin(0.5);
   }
@@ -308,18 +311,20 @@ export class GameScene extends Phaser.Scene {
   }
 
   private drawBombCode(code: number): void {
-    this.add.rectangle(400, 95, 220, 110, 0x2c323d).setStrokeStyle(3, 0xf59e0b);
     this.add
-      .text(400, 58, "BOMB CODE", {
+      .rectangle(CENTER_X, 74, 230, 100, 0x2c323d)
+      .setStrokeStyle(3, 0xf59e0b);
+    this.add
+      .text(CENTER_X, 44, "BOMB CODE", {
         fontFamily: "Arial",
         fontSize: "18px",
         color: "#f59e0b",
       })
       .setOrigin(0.5);
     this.add
-      .text(400, 108, String(code), {
+      .text(CENTER_X, 88, String(code), {
         fontFamily: "Arial",
-        fontSize: "48px",
+        fontSize: "46px",
         fontStyle: "bold",
         color: "#ffffff",
       })
